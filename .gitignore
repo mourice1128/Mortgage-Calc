@@ -4,3 +4,279 @@
 *.jar
 *.war
 *.ear
+package mortcalcjavatwoweekfive;
+
+// Importing What I might use for this class
+
+import javax.swing.*;
+import java.awt.*;
+import java.math.*;
+import java.lang.*;
+import java.text.*;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import javax.swing.JComponent;
+// Here I added a few more because I found out I needed them.
+import javax.swing.border.TitledBorder;
+import javax.swing.border.EtchedBorder;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.TextEvent;
+import java.awt.event.TextListener;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Dimension;
+import java.io.*;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class MC5Frame extends JFrame implements ActionListener, ItemListener, TextListener {
+
+   
+    
+    // Here are the class members
+    
+    double loanAmount, loanTerm, interestRate = 0;
+    double monthlyInterest, monthlyLoanPayment, numberOfMonths= 0;
+    double loanBalance, interestNow, principleNow = 0;
+    int loanTermMonths = 0;
+    boolean CBoxSelect = false;
+    
+    String userPrompts[] = {"Loan Amount: $", "Loan Term & Interest Rate: ", "Term Length: ", "Interest Rate: ", "Monthly Payment: "};
+    String dropBoxData[] = {"Select... ", "7 Years @ 5.35%", "15 Years @ 5.5%", "30 Years @ 5.75%"};
+    String newButtonText[] = {"Submit", "Forget It", "Quit"};
+    
+    
+    double iRate[] = {5.35, 5.5, 5.75};
+    int loanTermOptions[] = {7, 15, 30};
+    final int FIELD_WIDTH = 6;
+    
+    
+    DecimalFormat paymentSchedule = new DecimalFormat ("$###,###.00");
+    
+    JPanel topSection = new JPanel (new GridLayout (5,2));
+    JLabel userData = new JLabel (userPrompts [0], JLabel.LEFT);
+    JTextField textData = new JTextField (6);
+    
+    JLabel cBoxPick = new JLabel (userPrompts [1]);
+    JComboBox TermAndRate = new JComboBox (dropBoxData);
+    
+    JLabel theLoanTermLabel = new JLabel (userPrompts [2]);
+    JTextField userInputTerm = new JTextField (6);
+    
+    JLabel theLoanRateLabel = new JLabel (userPrompts [3]);
+    JTextField userInputRate = new JTextField (6);
+    
+    JLabel thePaymentDisplay = new JLabel (userPrompts [4]);
+    JTextField paymentDisplay = new JTextField (10);
+    
+    JPanel middleSection = new JPanel (new GridLayout (1,3,10,5));
+    JButton calcButton = new JButton (newButtonText [0]);
+    JButton forgetItButton = new JButton (newButtonText [1]);
+    JButton leaveButton = new JButton (newButtonText [2]);
+    
+    JPanel bottomSection = new JPanel (new BorderLayout ());
+    JLabel textFieldName = new JLabel ("Loan Information Area");
+    JLabel textFieldHeader = new JLabel ("\t\tPayment  # \t |" + "   \t\tAmount  Paid\t |" + "     \t\tInterest   Paid\t |" + "      \t\tBalance   Due");
+    JTextArea loanInfo = new JTextArea (15, 60);
+    JScrollPane tooLargeToFit = new JScrollPane (loanInfo);
+    
+    
+    // This is where I will have the program constuct.
+    
+    public MC5Frame () {
+        super ("Josh's Mortagage Calculator");
+        
+        topSection.add (userData);
+        topSection.add (textData);
+        topSection.add (cBoxPick);
+        topSection.add (TermAndRate);
+        TermAndRate.setSelectedIndex (0);
+        topSection.add (theLoanTermLabel);
+        topSection.add (userInputTerm);
+        topSection.add (theLoanRateLabel);
+        topSection.add (userInputRate);
+        topSection.add (thePaymentDisplay);
+        topSection.add (paymentDisplay);
+        topSection.setBackground (Color.BLACK);
+        userData.setFont (new Font ("Calibri", Font.BOLD, 15));
+        userData.setForeground(Color.BLUE);
+        theLoanTermLabel.setFont (new Font ("Calibri", Font.BOLD, 15));
+        theLoanTermLabel.setForeground(Color.BLUE);
+        theLoanRateLabel.setFont (new Font ("Calibri", Font.BOLD, 15));
+        theLoanRateLabel.setForeground(Color.BLUE);
+        userInputTerm.setFont (new Font ("Calibri", Font.BOLD, 15));
+        userInputRate.setFont (new Font ("Calibri", Font.BOLD, 15));
+        thePaymentDisplay.setFont (new Font ("Calibri", Font.BOLD, 15));
+        thePaymentDisplay.setForeground(Color.BLUE);
+        paymentDisplay.setFont (new Font ("Calibri", Font.PLAIN, 15));
+        textData.setBackground(Color.BLACK);
+        textData.setForeground(Color.BLUE);
+        userInputTerm.setBackground(Color.BLACK);
+        userInputTerm.setForeground(Color.BLUE);
+        userInputRate.setBackground(Color.BLACK);
+        userInputRate.setForeground(Color.BLUE);
+        paymentDisplay.setBackground(Color.BLACK);
+        paymentDisplay.setForeground(Color.BLUE);
+        textData.setFont (new Font ("Calibri", Font.BOLD, 15));
+        paymentDisplay.setFont (new Font ("Calibri", Font.BOLD, 15));
+        
+        TermAndRate.addItemListener (this);
+        calcButton.addActionListener (this);
+        forgetItButton.addActionListener (this);
+        leaveButton.addActionListener (this);
+        calcButton.setFont (new Font ("Calibri", Font.BOLD, 15));
+        forgetItButton.setFont (new Font ("Calibri", Font.BOLD, 15));
+        leaveButton.setFont (new Font ("Calibri", Font.BOLD, 15));
+        calcButton.setForeground (Color.BLUE);
+        forgetItButton.setForeground (Color.BLUE);
+        leaveButton.setForeground (Color.BLUE);
+        calcButton.setBackground (Color.BLACK);
+        forgetItButton.setBackground (Color.BLACK);
+        leaveButton.setBackground (Color.BLACK);
+        cBoxPick.setFont(new Font ("Calibri", Font.BOLD, 15));
+        cBoxPick.setForeground(Color.BLUE);
+        TermAndRate.setFont (new Font ("Calibri", Font.BOLD, 15));
+        TermAndRate.setBackground(Color.BLACK);
+        TermAndRate.setForeground(Color.BLUE);
+        calcButton.setSize(40, 40);
+        readInterestFile();
+        
+        middleSection.add (calcButton);
+        middleSection.add (forgetItButton);
+        middleSection.add (leaveButton);
+        middleSection.setBackground (Color.BLUE);
+        
+        paymentDisplay.setEditable (false);
+        tooLargeToFit.setPreferredSize (new Dimension (500, 200));
+        
+        bottomSection.add (textFieldName, BorderLayout.NORTH);
+        bottomSection.add (textFieldHeader, BorderLayout.NORTH);
+        bottomSection.add (tooLargeToFit, BorderLayout.CENTER);
+        bottomSection.setBackground (Color.BLUE);
+        textFieldName.setFont (new Font ("Calibri", Font.ITALIC, 15));
+        textFieldName.setForeground(Color.RED);
+        textFieldHeader.setFont (new Font ("Calibri", Font.BOLD, 15));
+        textFieldHeader.setForeground(Color.BLACK);
+        loanInfo.setBackground(Color.BLACK);
+        loanInfo.setForeground (Color.BLUE);
+        loanInfo.setFont (new Font ("Calibri", Font.BOLD, 15));
+        loanInfo.setEditable(false);
+        
+        
+        this.getContentPane ().add (topSection, BorderLayout.NORTH);
+        this.getContentPane ().add (middleSection, BorderLayout.CENTER);
+        this.getContentPane ().add (bottomSection, BorderLayout.SOUTH);
+        this.pack();
+  }
+// The code to read in from the text file. code was taken from example by Lance Porter.
+    
+    
+    
+    private void readInterestFile() {
+    try {
+         File ioFile = new File("IRates.txt");
+         Scanner scanIoFile = new Scanner(ioFile);
+         int index = 0;
+         while (scanIoFile.hasNextLine())
+            {
+                String line = scanIoFile.nextLine();
+                System.out.println(line);
+                String arrLine[] = line.split(": ");
+                System.out.println(arrLine[0]);
+                String ioInterestRate = arrLine[1];
+                double dblInterestRate = Double.parseDouble(ioInterestRate.substring(0, ioInterestRate.length() - 1));
+                iRate[index] = dblInterestRate;
+                System.out.println(iRate[index]);
+                String userPick = arrLine[0] + " years at " + arrLine[1];
+                System.out.println(userPick);
+                                
+                index++;
+                
+              dropBoxData[index] = userPick;
+            }
+         scanIoFile.close();
+}
+    catch (FileNotFoundException exception) {
+        System.out.println("The file does not exist!");
+        return;
+        }
+    }
+    public void itemStateChanged (ItemEvent event) {
+        Object select = event.getItem();
+        String selection = select.toString();
+        
+        if (selection == dropBoxData [0]) {
+            CBoxSelect = false;
+        }
+        if (selection == dropBoxData [1]) {
+            interestRate = iRate [0];
+            loanTerm = loanTermOptions [0];
+            CBoxSelect = true;
+        }
+        if (selection == dropBoxData [2]) {
+            interestRate = iRate [1];
+            loanTerm = loanTermOptions [1];
+            CBoxSelect = true;
+        }
+            if (selection == dropBoxData [3]) {
+            interestRate = iRate [2];
+            loanTerm = loanTermOptions [2];
+            CBoxSelect = true;
+            }
+                   
+    }
+    
+    public void actionPerformed (ActionEvent e) {
+        
+        if (e.getSource() == calcButton) {
+            loanAmount = Double.parseDouble (textData.getText());
+            
+            if (CBoxSelect == false) {
+                interestRate = Double.parseDouble (userInputRate.getText ());
+                loanTerm = Double.parseDouble (userInputTerm.getText ());
+            }
+            paymentDisplay.setText (paymentSchedule.format(GetMonthlyDue())+"");
+            repaint ();
+            numberOfMonths = loanTerm * 12;
+            loanBalance = loanAmount;
+            for (loanTermMonths = 1; loanTermMonths <= numberOfMonths; loanTermMonths++) {
+                monthlyInterest = interestRate / (1200.00);
+                interestNow = loanBalance * monthlyInterest;
+                principleNow = monthlyLoanPayment - interestNow;
+                loanBalance = loanBalance - principleNow;
+                loanInfo.append ("  " + loanTermMonths + "\t   " + paymentSchedule.format (monthlyLoanPayment)
+                        + "\t        " + paymentSchedule.format (interestNow)
+                        + "\t           " + paymentSchedule.format (loanBalance) + "\n");
+            }
+        }
+        if (e.getSource() == forgetItButton) {
+            textData.setText ("");
+            paymentDisplay.setText ("");
+            userInputTerm.setText ("");
+            userInputRate.setText ("");
+            loanAmount = 0.0;
+            paymentDisplay.setText ("");
+            loanInfo.setText ("");
+            CBoxSelect = false;
+            TermAndRate.setSelectedIndex(0);
+        }
+        
+        if (e.getSource() == leaveButton) {
+            System.exit (0);
+        }
+    }
+    
+    double GetMonthlyDue () {
+        return monthlyLoanPayment = (loanAmount * ((1 + (interestRate * .01 ) / 12) -1) / (1 - (Math.pow (1 + (interestRate / 1200), -(loanTerm * 12)))));
+    }
+
+    @Override
+    public void textValueChanged(TextEvent e) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+}
